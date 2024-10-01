@@ -1,0 +1,22 @@
+@inject HttpClient Http
+
+<h3>Machine Name: @_machineName</h3>
+
+@code {
+  
+  private string _machineName = "Fetching...";
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      // Call the local API exposed by the Windows service
+      _machineName = await Http.GetStringAsync("http://localhost:5001/");
+    }
+    catch (Exception ex)
+    {
+      _machineName = $"Error fetching machine name: {ex.Message}";
+    }
+  }
+  
+}

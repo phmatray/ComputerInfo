@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ComputerInfo" type="CompoundRunConfigurationType">
+    <toRun name="ComputerInfo.BlazorApp: http" type="LaunchSettings" />
+    <toRun name="ComputerInfo.WorkerService" type="LaunchSettings" />
+    <method v="2" />
+  </configuration>
+</component>
