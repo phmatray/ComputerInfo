@@ -1,43 +1,63 @@
-using System.Net;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace ComputerInfo.WorkerService;
 
-public class Worker : BackgroundService
+public class Worker(ILogger<Worker> logger)
+    : BackgroundService
 {
-    private readonly ILogger<Worker> _logger;
-
-    public Worker(ILogger<Worker> logger)
-    {
-        _logger = logger;
-    }
+    private HubConnection? _connection;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        HttpListener listener = new HttpListener();
-        listener.Prefixes.Add("http://localhost:5001/");
-        listener.Start();
+        // Initialize the SignalR connection
+        _connection = new HubConnectionBuilder()
+            .WithUrl("http://localhost:5042/machinehub")
+            .Build();
         
+        // Start the connection
+        try
+        {
+            await _connection.StartAsync(stoppingToken);
+            logger.LogInformation("SignalR client connected.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Error starting SignalR connection: {Message}", ex.Message);
+            return;
+        }
+        
+        // Immediately send the machine name after connection is established
+        try
+        {
+            string machineName = Environment.MachineName;
+            await _connection.InvokeAsync("SendMachineInfo", machineName, cancellationToken: stoppingToken);
+            logger.LogInformation("Sent machine info: {MachineName}", machineName);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Error during SignalR communication: {Message}", ex.Message);
+        }
+        
+        // Periodically send machine info every 1 minute
         while (!stoppingToken.IsCancellationRequested)
         {
-            HttpListenerContext context = await listener.GetContextAsync();
-            string machineName = Environment.MachineName;
+            try
+            {
+                // Wait for 1 minute before sending again
+                await Task.Delay(60000, stoppingToken);
 
-            // Write response to the HTTP request
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(machineName);
-            context.Response.ContentLength64 = buffer.Length;
-            Stream output = context.Response.OutputStream;
-            await output.WriteAsync(buffer, stoppingToken);
-            output.Close();
-            
-            // if (_logger.IsEnabled(LogLevel.Information))
-            // {
-            //     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            //     
-            //     string machineName = Environment.MachineName;
-            //     _logger.LogInformation("Machine name: {MachineName}", machineName);
-            // }
-            //
-            // await Task.Delay(60000, stoppingToken);
+                // Send machine name to the SignalR hub again
+                string machineName = Environment.MachineName;
+                await _connection.InvokeAsync("SendMachineInfo", machineName, cancellationToken: stoppingToken);
+                logger.LogInformation("Sent machine info: {MachineName}", machineName);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error during SignalR communication: {Message}", ex.Message);
+            }
         }
+
+        // Stop the SignalR connection when the service is stopped
+        await _connection.StopAsync(stoppingToken);
     }
 }

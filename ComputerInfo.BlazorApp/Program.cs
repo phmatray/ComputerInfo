@@ -1,9 +1,13 @@
+using ComputerInfo.BlazorApp;
 using ComputerInfo.BlazorApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add SignalR to the service collection
+builder.Services.AddSignalR();
+
 // Add services to the container.
-builder.Services.AddRazorComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
@@ -21,6 +25,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>();
+// Map the SignalR hub endpoint
+app.MapHub<MachineHub>("/machinehub");
+
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();

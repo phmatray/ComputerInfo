@@ -1,21 +1,45 @@
-@inject HttpClient Http
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.SignalR.Client
+@implements IAsyncDisposable
 
-<h3>Machine Name: @_machineName</h3>
+<h3>Connected Machine Information</h3>
+
+<ul>
+  @foreach (var machine in _machines)
+  {
+    <li>@machine</li>
+  }
+</ul>
 
 @code {
   
-  private string _machineName = "Fetching...";
+  private HubConnection? _hubConnection;
+  private List<string> _machines = [];
 
   protected override async Task OnInitializedAsync()
   {
-    try
+    _hubConnection = new HubConnectionBuilder()
+      .WithUrl(Navigation.ToAbsoluteUri("/machinehub"))
+      .Build();
+
+    // Handle incoming messages from the SignalR hub
+    _hubConnection.On<string>("ReceiveMachineInfo", (machineName) =>
     {
-      // Call the local API exposed by the Windows service
-      _machineName = await Http.GetStringAsync("http://localhost:5001/");
-    }
-    catch (Exception ex)
+      if (!_machines.Contains(machineName))
+      {
+        _machines.Add(machineName);
+        InvokeAsync(StateHasChanged);
+      }
+    });
+
+    await _hubConnection.StartAsync();
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (_hubConnection is not null)
     {
-      _machineName = $"Error fetching machine name: {ex.Message}";
+      await _hubConnection.DisposeAsync();
     }
   }
   
