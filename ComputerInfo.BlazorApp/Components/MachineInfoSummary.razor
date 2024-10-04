@@ -1,0 +1,54 @@
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.SignalR.Client
+@using Shared
+@implements IAsyncDisposable
+
+<h3>Connected Machine Information</h3>
+
+@foreach (var machine in _machines)
+{
+  <article>
+    <h4>@machine.MachineName</h4>
+    <p>OS: @machine.OperatingSystem</p>
+    <p>OS Architecture: @machine.OSArchitecture</p>
+    <p>Processor count: @machine.ProcessorCount</p>
+    <p>Processor: @machine.CPUArchitecture</p>
+    <p>Total Physical Memory: @machine.TotalPhysicalMemory</p>
+    <p>Available Memory: @machine.AvailableMemory</p>
+    <p>Up Time: @machine.UpTime</p>
+  </article>
+}
+
+@code {
+  
+  private HubConnection? _hubConnection;
+  private List<MachineInfo> _machines = [];
+
+  protected override async Task OnInitializedAsync()
+  {
+    _hubConnection = new HubConnectionBuilder()
+      .WithUrl(Navigation.ToAbsoluteUri("/machinehub"))
+      .Build();
+
+    // Handle incoming messages from the SignalR hub
+    _hubConnection.On<MachineInfo>("ReceiveMachineInfo", machineInfo =>
+    {
+      if (!_machines.Select(m => m.MachineName).Contains(machineInfo.MachineName))
+      {
+        _machines.Add(machineInfo);
+        InvokeAsync(StateHasChanged);
+      }
+    });
+
+    await _hubConnection.StartAsync();
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (_hubConnection is not null)
+    {
+      await _hubConnection.DisposeAsync();
+    }
+  }
+  
+}

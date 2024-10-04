@@ -1,4 +1,6 @@
+using ComputerInfo.WorkerService.Services.Adapters;
 using ComputerInfo.WorkerService.Services.Ports;
+using Shared;
 
 namespace ComputerInfo.WorkerService.Services;
 
@@ -21,8 +23,8 @@ public class MachineInfoWorker(
 
         try
         {
-            string machineName = machineInfoProvider.GetMachineName();
-            await signalRService.SendMachineInfoAsync(machineName, stoppingToken);
+            MachineInfo machineInfo = machineInfoProvider.GetMachineInfo();
+            await signalRService.SendMachineInfoAsync(machineInfo, stoppingToken);
         }
         catch
         {
@@ -33,15 +35,15 @@ public class MachineInfoWorker(
         {
             try
             {
-                string machineName = machineInfoProvider.GetMachineName();
-                await signalRService.SendMachineInfoAsync(machineName, stoppingToken);
+                var machineInfo = machineInfoProvider.GetMachineInfo();
+                await signalRService.SendMachineInfoAsync(machineInfo, stoppingToken);
             }
             catch (Exception ex)
             {
                 logger.LogError("Error during periodic execution: {Message}", ex.Message);
             }
             
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
 
         await signalRService.StopAsync(stoppingToken);
