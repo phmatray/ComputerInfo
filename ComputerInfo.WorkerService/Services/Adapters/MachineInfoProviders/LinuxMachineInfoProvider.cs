@@ -8,8 +8,17 @@ namespace ComputerInfo.WorkerService.Services.Adapters;
 
 public class LinuxMachineInfoProvider : IMachineInfoProvider
 {
+    private double _lastCpuUsage = 0;
+    private DateTime _lastCpuCheck = DateTime.MinValue;
+    
     public MachineInfo GetMachineInfo()
     {
+        var totalMemory = GetTotalPhysicalMemory();
+        var availableMemory = GetAvailableMemory();
+        var memoryUsagePercentage = totalMemory > 0 
+            ? ((totalMemory - availableMemory) / (double)totalMemory) * 100 
+            : 0;
+        
         var machineInfo = new MachineInfo
         {
             MachineName = Environment.MachineName,
@@ -17,8 +26,10 @@ public class LinuxMachineInfoProvider : IMachineInfoProvider
             OSArchitecture = RuntimeInformation.OSArchitecture.ToString(),
             ProcessorCount = Environment.ProcessorCount,
             CPUArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
-            TotalPhysicalMemory = GetTotalPhysicalMemory(),
-            AvailableMemory = GetAvailableMemory(),
+            TotalPhysicalMemory = totalMemory,
+            AvailableMemory = availableMemory,
+            CpuUsagePercentage = GetCpuUsagePercentage(),
+            MemoryUsagePercentage = Math.Round(memoryUsagePercentage, 2),
             DiskDrives = GetDiskDrives(),
             NetworkAdapters = GetNetworkAdapters(),
             UpTime = GetUpTime()
@@ -90,5 +101,43 @@ public class LinuxMachineInfoProvider : IMachineInfoProvider
     private TimeSpan GetUpTime()
     {
         return TimeSpan.FromMilliseconds(Environment.TickCount64);
+    }
+    
+    private double GetCpuUsagePercentage()
+    {
+        try
+        {
+            // Cache CPU usage for 1 second to avoid too frequent calls
+            if ((DateTime.Now - _lastCpuCheck).TotalSeconds < 1)
+            {
+                return _lastCpuUsage;
+            }
+            
+            // Read CPU stats from /proc/stat
+            var lines = File.ReadAllLines("/proc/stat");
+            var cpuLine = lines.FirstOrDefault(l => l.StartsWith("cpu "));
+            if (cpuLine != null)
+            {
+                var parts = cpuLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length >= 5)
+                {
+                    var idle = long.Parse(parts[4]);
+                    var total = parts.Skip(1).Take(7).Sum(p => long.Parse(p));
+                    
+                    // For a more accurate reading, we'd need to track previous values
+                    // This is a simplified version that gives an approximation
+                    var usage = 100.0 - (idle * 100.0 / total);
+                    _lastCpuUsage = Math.Round(Math.Min(100, Math.Max(0, usage)), 2);
+                    _lastCpuCheck = DateTime.Now;
+                    return _lastCpuUsage;
+                }
+            }
+        }
+        catch
+        {
+            // Ignore errors and return last known value
+        }
+        
+        return _lastCpuUsage;
     }
 }

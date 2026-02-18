@@ -9,6 +9,8 @@ public class MachineInfo
     public string CPUArchitecture { get; set; }
     public long TotalPhysicalMemory { get; set; }
     public long AvailableMemory { get; set; }
+    public double CpuUsagePercentage { get; set; }
+    public double MemoryUsagePercentage { get; set; }
     public List<DiskInfo> DiskDrives { get; set; } = [];
     public List<NetworkAdapterInfo> NetworkAdapters { get; set; } = [];
     public TimeSpan UpTime { get; set; }

@@ -27,3 +27,15 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+/* Custom theme variables */
+:root {
+    --card-background-color: var(--background-color);
+    --card-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --secondary-background: #f0f0f0;
+    --muted-color: #6c757d;
+}
+
+[data-theme="dark"] {
+    --secondary-background: #2a2a2a;
+}

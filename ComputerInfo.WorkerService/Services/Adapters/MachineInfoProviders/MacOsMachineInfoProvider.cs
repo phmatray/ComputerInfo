@@ -9,8 +9,17 @@ namespace ComputerInfo.WorkerService.Services.Adapters;
 
 public class MacOsMachineInfoProvider : IMachineInfoProvider
 {
+    private double _lastCpuUsage = 0;
+    private DateTime _lastCpuCheck = DateTime.MinValue;
+    
     public MachineInfo GetMachineInfo()
     {
+        var totalMemory = GetTotalPhysicalMemory();
+        var availableMemory = GetAvailableMemory();
+        var memoryUsagePercentage = totalMemory > 0 
+            ? ((totalMemory - availableMemory) / (double)totalMemory) * 100 
+            : 0;
+        
         var machineInfo = new MachineInfo
         {
             MachineName = Environment.MachineName,
@@ -18,8 +27,10 @@ public class MacOsMachineInfoProvider : IMachineInfoProvider
             OSArchitecture = RuntimeInformation.OSArchitecture.ToString(),
             ProcessorCount = Environment.ProcessorCount,
             CPUArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
-            TotalPhysicalMemory = GetTotalPhysicalMemory(),
-            AvailableMemory = GetAvailableMemory(),
+            TotalPhysicalMemory = totalMemory,
+            AvailableMemory = availableMemory,
+            CpuUsagePercentage = GetCpuUsagePercentage(),
+            MemoryUsagePercentage = Math.Round(memoryUsagePercentage, 2),
             DiskDrives = GetDiskDrives(),
             NetworkAdapters = GetNetworkAdapters(),
             UpTime = GetUpTime()
@@ -112,5 +123,31 @@ public class MacOsMachineInfoProvider : IMachineInfoProvider
     private TimeSpan GetUpTime()
     {
         return TimeSpan.FromMilliseconds(Environment.TickCount64);
+    }
+    
+    private double GetCpuUsagePercentage()
+    {
+        try
+        {
+            // Cache CPU usage for 1 second to avoid too frequent calls
+            if ((DateTime.Now - _lastCpuCheck).TotalSeconds < 1)
+            {
+                return _lastCpuUsage;
+            }
+            
+            var output = RunBashCommand("ps -A -o %cpu | awk '{s+=$1} END {print s}'");
+            if (double.TryParse(output.Trim(), out var cpuUsage))
+            {
+                _lastCpuUsage = Math.Round(cpuUsage / Environment.ProcessorCount, 2);
+                _lastCpuCheck = DateTime.Now;
+                return _lastCpuUsage;
+            }
+        }
+        catch
+        {
+            // Ignore errors and return last known value
+        }
+        
+        return _lastCpuUsage;
     }
 }

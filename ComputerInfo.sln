@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputerInfo.BlazorApp", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{7BDA13B8-6BC7-45E7-A5D3-920B42F7CBD5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{C38B68C0-A13D-4E06-9214-EF7AD88C13A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{7BDA13B8-6BC7-45E7-A5D3-920B42F7CBD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BDA13B8-6BC7-45E7-A5D3-920B42F7CBD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BDA13B8-6BC7-45E7-A5D3-920B42F7CBD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C38B68C0-A13D-4E06-9214-EF7AD88C13A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C38B68C0-A13D-4E06-9214-EF7AD88C13A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C38B68C0-A13D-4E06-9214-EF7AD88C13A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C38B68C0-A13D-4E06-9214-EF7AD88C13A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

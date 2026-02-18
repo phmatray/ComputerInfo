@@ -1,23 +1,107 @@
 @inject NavigationManager Navigation
 @using Microsoft.AspNetCore.SignalR.Client
 @using Shared
+@using Shared.Helpers
 @implements IAsyncDisposable
 
-<h3>Connected Machine Information</h3>
-
-@foreach (var machine in _machines)
-{
-  <article>
-    <h4>@machine.MachineName</h4>
-    <p>OS: @machine.OperatingSystem</p>
-    <p>OS Architecture: @machine.OSArchitecture</p>
-    <p>Processor count: @machine.ProcessorCount</p>
-    <p>Processor: @machine.CPUArchitecture</p>
-    <p>Total Physical Memory: @machine.TotalPhysicalMemory</p>
-    <p>Available Memory: @machine.AvailableMemory</p>
-    <p>Up Time: @machine.UpTime</p>
-  </article>
-}
+<div class="machine-grid">
+    @if (_machines.Count == 0)
+    {
+        <article class="loading-card">
+            <h3>Waiting for machines to connect...</h3>
+            <p>No machines are currently connected. Make sure the Worker Service is running.</p>
+        </article>
+    }
+    else
+    {
+        @foreach (var machine in _machines)
+        {
+            <article class="machine-card">
+                <header>
+                    <h3>@machine.MachineName</h3>
+                    <span class="status-indicator online"></span>
+                </header>
+                
+                <div class="machine-details">
+                    <section class="system-info">
+                        <h4>System Information</h4>
+                        <dl>
+                            <dt>Operating System</dt>
+                            <dd>@machine.OperatingSystem</dd>
+                            
+                            <dt>Architecture</dt>
+                            <dd>@machine.OSArchitecture / @machine.CPUArchitecture</dd>
+                            
+                            <dt>Processors</dt>
+                            <dd>@machine.ProcessorCount cores</dd>
+                            
+                            <dt>Uptime</dt>
+                            <dd>@FormatHelper.FormatUptime(machine.UpTime)</dd>
+                        </dl>
+                    </section>
+                    
+                    <section class="performance-metrics">
+                        <h4>Performance</h4>
+                        
+                        <div class="metric-item">
+                            <label>CPU Usage</label>
+                            <div class="metric-value">
+                                <div class="progress-bar">
+                                    <div class="progress-fill cpu" style="width: @(machine.CpuUsagePercentage)%"></div>
+                                </div>
+                                <span class="percentage">@FormatHelper.FormatPercentage(machine.CpuUsagePercentage)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-item">
+                            <label>Memory Usage</label>
+                            <div class="metric-value">
+                                <div class="progress-bar">
+                                    <div class="progress-fill memory" style="width: @(machine.MemoryUsagePercentage)%"></div>
+                                </div>
+                                <span class="percentage">@FormatHelper.FormatPercentage(machine.MemoryUsagePercentage)</span>
+                            </div>
+                            <div class="memory-details">
+                                <span>@FormatHelper.FormatBytes(machine.TotalPhysicalMemory - machine.AvailableMemory) / @FormatHelper.FormatBytes(machine.TotalPhysicalMemory)</span>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    @if (machine.DiskDrives.Any())
+                    {
+                        <section class="disk-info">
+                            <h4>Storage</h4>
+                            @foreach (var disk in machine.DiskDrives)
+                            {
+                                <div class="disk-item">
+                                    <label>@disk.DriveName</label>
+                                    <div class="disk-usage">
+                                        <span>@FormatHelper.FormatBytes(disk.TotalSize - disk.FreeSpace) / @FormatHelper.FormatBytes(disk.TotalSize)</span>
+                                        <span class="free-space">(@FormatHelper.FormatBytes(disk.FreeSpace) free)</span>
+                                    </div>
+                                </div>
+                            }
+                        </section>
+                    }
+                    
+                    @if (machine.NetworkAdapters.Any())
+                    {
+                        <section class="network-info">
+                            <h4>Network</h4>
+                            @foreach (var adapter in machine.NetworkAdapters.Where(a => !string.IsNullOrEmpty(a.IPAddress)))
+                            {
+                                <div class="network-item">
+                                    <label>@adapter.AdapterName</label>
+                                    <span class="ip-address">@adapter.IPAddress</span>
+                                </div>
+                            }
+                        </section>
+                    }
+                </div>
+            </article>
+        }
+    }
+</div>
 
 @code {
   
@@ -33,11 +117,19 @@
     // Handle incoming messages from the SignalR hub
     _hubConnection.On<MachineInfo>("ReceiveMachineInfo", machineInfo =>
     {
-      if (!_machines.Select(m => m.MachineName).Contains(machineInfo.MachineName))
+      var existingMachine = _machines.FirstOrDefault(m => m.MachineName == machineInfo.MachineName);
+      if (existingMachine != null)
       {
-        _machines.Add(machineInfo);
-        InvokeAsync(StateHasChanged);
+        // Update existing machine info
+        var index = _machines.IndexOf(existingMachine);
+        _machines[index] = machineInfo;
       }
+      else
+      {
+        // Add new machine
+        _machines.Add(machineInfo);
+      }
+      InvokeAsync(StateHasChanged);
     });
 
     await _hubConnection.StartAsync();
