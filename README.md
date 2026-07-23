@@ -113,6 +113,18 @@ The architecture follows the **Single Responsibility Principle (SRP)**, with pla
 - Platform-specific implementations might need further testing and adjustments depending on the target system configuration.
 - The `PerformanceCounter` API used for memory info on Windows may require elevated permissions on some systems.
 
+<!-- portfolio-techstack:start -->
+
+## Tech Stack
+
+- **.NET 9**
+- Microsoft.AspNetCore.SignalR.Client
+- Microsoft.Extensions.Hosting
+- System.Diagnostics.PerformanceCounter
+- System.Management
+
+<!-- portfolio-techstack:end -->
+
 ## Contributing
 
 Feel free to fork the repository and submit pull requests. Contributions to improve platform support or add new features are welcome!
