@@ -142,6 +142,14 @@ The architecture follows the **Single Responsibility Principle (SRP)**, with pla
 
 <!-- portfolio-techstack:end -->
 
+<!-- portfolio-roadmap:start -->
+
+## Roadmap
+
+Planned work and known limitations are tracked in the [open issues](https://github.com/phmatray/ComputerInfo/issues). Contributions toward them are welcome.
+
+<!-- portfolio-roadmap:end -->
+
 ## Contributing
 
 Feel free to fork the repository and submit pull requests. Contributions to improve platform support or add new features are welcome!
