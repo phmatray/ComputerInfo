@@ -2,6 +2,20 @@
 
 # Computer Information Collector - POC
 
+<!-- portfolio-badges:start -->
+<!-- Identity -->
+[![phmatray - ComputerInfo](https://img.shields.io/static/v1?label=phmatray&message=ComputerInfo&color=blue&logo=github)](https://github.com/phmatray/ComputerInfo)
+![Top language](https://img.shields.io/github/languages/top/phmatray/ComputerInfo)
+[![Stars](https://img.shields.io/github/stars/phmatray/ComputerInfo?style=social)](https://github.com/phmatray/ComputerInfo/stargazers)
+[![Forks](https://img.shields.io/github/forks/phmatray/ComputerInfo?style=social)](https://github.com/phmatray/ComputerInfo/network/members)
+
+<!-- Activity -->
+[![Issues](https://img.shields.io/github/issues/phmatray/ComputerInfo)](https://github.com/phmatray/ComputerInfo/issues)
+[![Pull requests](https://img.shields.io/github/issues-pr/phmatray/ComputerInfo)](https://github.com/phmatray/ComputerInfo/pulls)
+[![Last commit](https://img.shields.io/github/last-commit/phmatray/ComputerInfo)](https://github.com/phmatray/ComputerInfo/commits)
+<!-- portfolio-badges:end -->
+
+
 ## Overview
 
 This project is a **Proof of Concept (POC)** for a cross-platform service that collects system and machine information such as memory, disk usage, CPU details, and network adapters. The service is designed to run on **Windows**, **Linux**, and **macOS** platforms, providing detailed insights into the system's current state.
