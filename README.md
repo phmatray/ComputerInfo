@@ -1,3 +1,5 @@
+![ComputerInfo banner](.github/banner.png)
+
 # Computer Information Collector - POC
 
 ## Overview
