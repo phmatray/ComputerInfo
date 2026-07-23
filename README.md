@@ -15,6 +15,23 @@
 [![Last commit](https://img.shields.io/github/last-commit/phmatray/ComputerInfo)](https://github.com/phmatray/ComputerInfo/commits)
 <!-- portfolio-badges:end -->
 
+<!-- portfolio-toc:start -->
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Components](#components)
+- [Setup & Usage](#setup--usage)
+- [Architecture](#architecture)
+- [Limitations](#limitations)
+- [Tech Stack](#tech-stack)
+- [Contributing](#contributing)
+- [License](#license)
+
+<!-- portfolio-toc:end -->
+
+
 
 ## Overview
 
