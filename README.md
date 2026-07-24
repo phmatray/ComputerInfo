@@ -8,6 +8,7 @@
 ![Top language](https://img.shields.io/github/languages/top/phmatray/ComputerInfo)
 [![Stars](https://img.shields.io/github/stars/phmatray/ComputerInfo?style=social)](https://github.com/phmatray/ComputerInfo/stargazers)
 [![Forks](https://img.shields.io/github/forks/phmatray/ComputerInfo?style=social)](https://github.com/phmatray/ComputerInfo/network/members)
+[![License](https://img.shields.io/github/license/phmatray/ComputerInfo)](https://github.com/phmatray/ComputerInfo/blob/HEAD/LICENSE)
 
 <!-- Activity -->
 [![Issues](https://img.shields.io/github/issues/phmatray/ComputerInfo)](https://github.com/phmatray/ComputerInfo/issues)
